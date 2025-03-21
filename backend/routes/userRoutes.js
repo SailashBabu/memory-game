@@ -7,10 +7,7 @@ router.post("/save", async(req,res)=>{
         const {theme, level, time, attempts} = req.body;
 
         const newUser = new User({theme, level, time, attempts});
-        console.log(newUser,attempts,typeof(attempts));
-
         await newUser.save();
-
         res.status(201).json({message : "Game data saved successfully!"});
     }catch(err){
         res.status(500).json({error: "Failed to save game data",details:err.message});

@@ -1,154 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import { io } from "socket.io-client";
-// import Card from "./Card"; // Import the Card component
-// import "../styles/Multiplayer.css";
-
-// const socket = io("http://127.0.0.1:5000"); // Connect to the backend server
-
-// const MultiplayerGame = () => {
-//   const [playerName, setPlayerName] = useState("");
-//   const [theme, setTheme] = useState(null);
-//   const [level, setLevel] = useState(null);
-//   const [gameId, setGameId] = useState(null);
-//   const [cards, setCards] = useState([]);
-//   const [flippedCards, setFlippedCards] = useState([]);
-//   const [matchedCards, setMatchedCards] = useState([]);
-//   const [opponent, setOpponent] = useState(null);
-//   const [isMyTurn, setIsMyTurn] = useState(false);
-
-//   // Join game logic
-//   const joinGame = () => {
-//     socket.emit("joinGame", { name: playerName, theme, level });
-
-//     socket.on("waiting", (data) => {
-//       alert(data.message);
-//     });
-
-//     socket.on("matched", (data) => {
-//       setGameId(data.gameId);
-//       setCards(data.cards);
-//       setOpponent(data.opponent);
-//       setIsMyTurn(data.isMyTurn); // Backend decides who starts first
-//       alert(`Matched with ${data.opponent}. Starting the game!`);
-//     });
-
-//     socket.on("cardFlipped", ({ cardId }) => {
-//       setFlippedCards((prev) => [...prev, cardId]);
-//     });
-
-//     socket.on("opponentTurn", () => {
-//       setIsMyTurn(false);
-//     });
-
-//     socket.on("yourTurn", () => {
-//       setIsMyTurn(true);
-//     });
-
-//     socket.on("opponentLeft", () => {
-//       alert("Your opponent left the game.");
-//       resetGame();
-//     });
-//   };
-
-//   // Handle card flip
-//   const flipCard = (cardId) => {
-//     // Restrict card flipping to the current player only
-//     if (!isMyTurn || flippedCards.includes(cardId) || matchedCards.includes(cardId)) {
-//       return;
-//     }
-
-//     setFlippedCards((prev) => [...prev, cardId]);
-//     socket.emit("cardFlipped", { gameId, cardId });
-
-//     // Check for match if two cards are flipped
-//     if (flippedCards.length === 1) {
-//       const firstCardId = flippedCards[0];
-//       const firstCard = cards[firstCardId];
-//       const secondCard = cards[cardId];
-
-//       if (firstCard === secondCard) {
-//         // Cards matched
-//         setMatchedCards((prev) => [...prev, firstCardId, cardId]);
-//         setFlippedCards([]);
-//       } else {
-//         // Cards did not match, switch turn after a delay
-//         setTimeout(() => {
-//           setFlippedCards([]);
-//           socket.emit("endTurn", { gameId });
-//         }, 1000);
-//       }
-//     }
-//   };
-
-//   // Reset game
-//   const resetGame = () => {
-//     setPlayerName("");
-//     setTheme(null);
-//     setLevel(null);
-//     setGameId(null);
-//     setCards([]);
-//     setFlippedCards([]);
-//     setMatchedCards([]);
-//     setOpponent(null);
-//     setIsMyTurn(false);
-//   };
-
-//   return (
-//     <div className="multiplayer-game">
-//       {!gameId ? (
-//         <div className="setup">
-//           <h1>Multiplayer Memory Game</h1>
-//           <div>
-//             <h2>Enter Your Name:</h2>
-//             <input
-//               type="text"
-//               value={playerName}
-//               onChange={(e) => setPlayerName(e.target.value)}
-//               placeholder="Your Name"
-//             />
-//           </div>
-//           <div>
-//             <h2>Select Theme:</h2>
-//             <button onClick={() => setTheme("nature")}>Nature</button>
-//             <button onClick={() => setTheme("space")}>Space</button>
-//             <button onClick={() => setTheme("architecture")}>Architecture</button>
-//           </div>
-//           <div>
-//             <h2>Select Level:</h2>
-//             <button onClick={() => setLevel("easy")}>Easy</button>
-//             <button onClick={() => setLevel("medium")}>Medium</button>
-//             <button onClick={() => setLevel("hard")}>Hard</button>
-//           </div>
-//           <button
-//             onClick={joinGame}
-//             disabled={!playerName || !theme || !level}
-//           >
-//             Search for Opponent
-//           </button>
-//         </div>
-//       ) : (
-//         <div className="game">
-//           <h1>Game Started!</h1>
-//           <p>Opponent: {opponent}</p>
-//           <p>{isMyTurn ? "Your Turn" : "Opponent's Turn"}</p>
-//           <div className="cards-grid">
-//             {cards.map((card, index) => (
-//               <Card
-//                 key={index}
-//                 card={card}
-//                 flipped={flippedCards.includes(index) || matchedCards.includes(index)}
-//                 onClick={() => flipCard(index)}
-//               />
-//             ))}
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default MultiplayerGame;
-
 
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
@@ -170,6 +19,7 @@ const levels = {
   hard: "Hard",
 };
 
+
 const Multiplayer = () => {
   const [step, setStep] = useState(1);
   const [theme, setTheme] = useState(null);
@@ -184,9 +34,12 @@ const Multiplayer = () => {
   const [isYourTurn, setIsYourTurn] = useState(false);
   const [turnMessage, setTurnMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+ // var winnerName;
+  const [winnerName, setWinnerName] = useState("");
+  //const [isGameOver, setIsGameOver] = useState(false);
 
   const nextStep = () => setStep((prev) => prev + 1);
-
+  
   const searchForPlayer = () => {
     setSearching(true);
     socket.emit("joinGame", { name: playerName, theme, level });
@@ -279,8 +132,39 @@ const Multiplayer = () => {
       alert(data.message);
       reset();
     });
-  }, [cards]);
-
+    
+    socket.on("gameSummary",(data)=>{
+        setStep(5);
+        setWinnerName(data.winner);
+        //console.log(winner);
+        setShowPopup(true);
+    });
+  }, [cards,showPopup]);
+  const themeBackgrounds ={
+    nature : "linear-gradient(rgba(128, 128, 128, 0.4), rgba(169, 169, 169, 0.4)),url('/images/nature2.jpg')",
+    space : "linear-gradient(rgba(25, 25, 112, 0.5), rgba(0, 0, 139, 0.5)),url('/images/space.jpg')",
+    architecture : "linear-gradient(rgba(128, 128, 128, 0.4), rgba(169, 169, 169, 0.4)),url('/images/Architecture.jpg')",
+    
+};
+  useEffect(() => {
+      if (theme) {
+        document.body.style.background = themeBackgrounds[theme];
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center";
+        document.body.style.height = "100vh";
+        document.body.style.margin = "0"; 
+        document.body.style.padding = "0";
+      } else {
+        document.body.style.background = "linear-gradient(rgba(30, 60, 114, 0.6), rgba(42, 82, 152, 0.6)),url('/images/home.avif')";
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center";
+        document.body.style.height = "100vh";
+        document.body.style.margin = "0"; // Reset margins for full body coverage
+        document.body.style.padding = "0"; // Reset padding
+        
+      }
+    }, [theme]);
+    
   return (
     <div className="multiplayer">
       <h1>Multiplayer Mode</h1>
@@ -350,16 +234,17 @@ const Multiplayer = () => {
       )}
 
 
-{/* {step === 5 && (
+      {step === 5 && showPopup && winnerName && (
         <div className="game-start">
-            <MultiplayerPopup
-                name = {},
-                close ={()=>{
-                    setShowPopup(false);
-                }}
-            />
-        </div>
-      )} */}
+          <MultiplayerPopup
+              winnerName = {winnerName}
+              close ={()=>{
+                  reset();
+                  setShowPopup(false);
+              }}
+          />
+          </div>
+        )}
 
       <button className="reset-btn" onClick={reset}>
         Reset

@@ -84,7 +84,8 @@
   /* Game Board */
   .game-board {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    /* grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); */
+    grid-template-columns: repeat(6, 100px);
     gap: 10px;
     justify-content: center;
     align-items: center;
