@@ -31,8 +31,7 @@ const Multiplayer = () => {
   const [gameId, setGameId] = useState(null);
   const [cards, setCards] = useState([]); // Track card data
   const [flippedCards, setFlippedCards] = useState([]); // Track flipped card indices
-  const [isYourTurn, setIsYourTurn] = useState(false);
-  const [turnMessage, setTurnMessage] = useState("");
+//  const [turnMessage, setTurnMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
  // var winnerName;
   const [winnerName, setWinnerName] = useState("");
@@ -53,17 +52,17 @@ const Multiplayer = () => {
       setOpponent(data.opponent);
       setGameId(data.gameId);
       setCards(data.cards.map((card) => ({ content: card, isFlipped: false }))); // Initialize cards
-      setIsYourTurn(data.isTurn);
-      setTurnMessage(data.isTurn ? "Your turn!" : `${data.opponent}'s turn!`);
+      //setIsYourTurn(data.isTurn);
+      // setTurnMessage(data.isTurn ? "Your turn!" : `${data.opponent}'s turn!`);
       nextStep();
     });
   };
 
   const handleCardClick = (index) => {
-    if (!isYourTurn) {
-      alert("It's not your turn!");
-      return;
-    }
+    // if (!isYourTurn) {
+    //   alert("It's not your turn!");
+    //   return;
+    // }
     if (cards[index].isFlipped) {
       return; // Ignore already flipped cards
     }
@@ -94,7 +93,7 @@ const Multiplayer = () => {
           resetCards[second].isFlipped = false;
           setCards(resetCards);
           setFlippedCards([]);
-          socket.emit("turnSwitch", { gameId }); // Switch turns after mismatch
+          // socket.emit("turnSwitch", { gameId }); // Switch turns after mismatch
         }, 1000);
       }
     }
@@ -111,9 +110,10 @@ const Multiplayer = () => {
     setGameId(null);
     setCards([]);
     setFlippedCards([]);
-    setIsYourTurn(false);
-    setTurnMessage("");
+    // setIsYourTurn(false);
+    //setTurnMessage("");
     setShowPopup(false);
+    windows.location.reload(); // Reload the page to reset the game state
   };
 
   useEffect(() => {
@@ -123,10 +123,10 @@ const Multiplayer = () => {
       setCards(updatedCards);
     });
 
-    socket.on("turnSwitch", ({ currentPlayer, isYourTurn }) => {
-      setIsYourTurn(isYourTurn);
-      setTurnMessage(isYourTurn ? "Your turn!" : `${currentPlayer}'s turn!`);
-    });
+    // socket.on("turnSwitch", ({ currentPlayer, isYourTurn }) => {
+    //   setIsYourTurn(isYourTurn);
+    //   setTurnMessage(isYourTurn ? "Your turn!" : `${currentPlayer}'s turn!`);
+    // });
 
     socket.on("opponentLeft", (data) => {
       alert(data.message);
@@ -218,7 +218,7 @@ const Multiplayer = () => {
           <p>
             Player 1: {playerName} | Player 2: {opponent}
           </p>
-          <p>{turnMessage}</p>
+          {/* <p>{turnMessage}</p> */}
           <div className="game-board">
             {cards.map((card, index) => (
               <MultiplayerCard
