@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
             cards: game.cards,
             playerName: player.name,
             
-            isTurn: player.turn, // Indicate whose turn it is initially
+            //isTurn: player.turn, // Indicate whose turn it is initially
           });
         });
   
@@ -87,9 +87,9 @@ io.on("connection", (socket) => {
         const nextPlayerIndex = 1 - currentPlayerIndex;
   
         // Check if it's the current player's turn
-        if (!game.players[currentPlayerIndex].turn) {
-          return; // Ignore flips from the player if it's not their turn
-        }
+        // if (!game.players[currentPlayerIndex].turn) {
+        //   return; // Ignore flips from the player if it's not their turn
+        // }
   
         // Update flipped cards in the game instance
         game.flippedCards.push({ cardId, player: game.players[currentPlayerIndex].name });
@@ -134,7 +134,7 @@ io.on("connection", (socket) => {
               delete gameInstances[gameId];
             }
           } else {
-            console.log(`${game.players[currentPlayerIndex].name} did not match. Passing turn.`);
+            console.log(`${game.players[currentPlayerIndex].name} did not match.`);
   
             // Notify players of no match
             game.players.forEach((player) => {
@@ -148,12 +148,12 @@ io.on("connection", (socket) => {
               game.players[currentPlayerIndex].turn = false;
               game.players[nextPlayerIndex].turn = true;
               game.flippedCards = []; // Reset flipped cards
-              game.players.forEach((player) => {
-                player.socket.emit("turnSwitch", {
-                  currentPlayer: game.players[nextPlayerIndex].name,
-                  isYourTurn: player.id === game.players[nextPlayerIndex].id,
-                });
-              });
+              // game.players.forEach((player) => {
+              //   player.socket.emit("turnSwitch", {
+              //     currentPlayer: game.players[nextPlayerIndex].name,
+              //     isYourTurn: player.id === game.players[nextPlayerIndex].id,
+              //   });
+              // });  
             }, 1000);
           }
         }
@@ -196,7 +196,7 @@ const shuffleCards = (theme, level) => {
   };
 
   const cardSet = themes[theme];
-  const levelMap = { easy: 3, medium: 6, hard: 9 };
+  const levelMap = { easy: 3, medium: 9, hard: 12 };
   const totalCards = levelMap[level];
   const selectedIcons = cardSet.slice(0, totalCards);
   return [...selectedIcons, ...selectedIcons].sort(() => Math.random() - 0.5);
